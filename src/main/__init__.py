@@ -36,12 +36,37 @@ class Facing(Enum):
 # ---------------------------------------------------------------------------
 def hp_ratio(hp, max_hp):
     """TODO(Q1)：血量百分比，返回 0-100 的 int；计算与边界规则见题面 Q1 规范。"""
-    raise NotImplementedError("Q1 hp_ratio：题面 Q1·血量百分比与精度保障")
+    return int(hp / max_hp * 100)    ##返回血量百分比
 
 
 def status_report(name, robot_type, hp, max_hp, battery):
     """TODO(Q1)：一行自检报告字符串；档位判定与逐字符格式见题面 Q1 规范。"""
-    raise NotImplementedError("Q1 status_report：题面 Q1·电量映射与报告格式")
+    ratio = hp_ratio(hp, max_hp)
+    if ratio >= 70:
+        status = "OK"
+    elif ratio >= 30:
+        status = "WARN"
+    else:
+        status = "CRIT"                            ###报告为单行字符串，各字段以竖线分隔，格式模板如下——名称左对齐占 10 字符，机型居中占
+                                                   ###10 字符，两个百分比各右对齐占 3 字符，档位接在末尾
+    return f"{name}  | {robot_type} | HP:{ratio}%| BAT:{battery}%|STATUS:{status}"       
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 # ---------------------------------------------------------------------------
