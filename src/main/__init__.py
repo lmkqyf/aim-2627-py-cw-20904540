@@ -68,7 +68,62 @@ def status_report(name, robot_type, hp, max_hp, battery):
 def analyze_damage_log(lines):
     """TODO(Q2)：解析混合格式伤害日志，返回固定契约的统计 dict；
     行格式、去重与统计口径见题面 Q2 规范。"""
-    raise NotImplementedError("Q2 analyze_damage_log：题面 Q2·多源日志解析与统计")
+    by_armor = {"front": 0, "left": 0, "right": 0}
+    id_set = set()  # 用于去重
+    yingshe = {"F": "front", "L": "left", "R": "right"}  # 用于映射传感器方向
+    num = 0
+    for line in lines:
+        try:  # josn行
+            if line[0] == "{" and line[-1] == "}":
+                data = json.loads(line)
+            id = data.get("id")
+            if id and id in id_set:
+                continue
+            data = json.loads(line)
+            armor = data.get("armor")
+            damage = data.get("damage")
+            if damage and damage > 0 and armor in by_armor:
+                by_armor[armor] += damage
+                num += 1
+                id_set.add(id)
+
+        except Exception:
+            try:  # 传感器行
+                parts = line.split(",")
+                by_armor_temp = {"front": 0, "left": 0, "right": 0}
+                for i in range(len(parts)):
+                    d = parts[i]
+                    try:
+                        x, y = d.split(":")[0], d.split(":")[1]
+                    except:
+                        break
+                    if x in yingshe:
+                        armor = yingshe[x]
+                        damage = int(y)
+                    else:
+                        break
+                    if damage > 0:
+                        by_armor_temp[armor] += damage
+                else:
+                    num_temp = 0
+                    for way in by_armor_temp:
+                        if by_armor_temp[way] > 0:
+                            num_temp += 1
+                            # 伤害数量计算没说清，我就按照每个方向有伤害就算一次了
+                            by_armor[way] += by_armor_temp[way]
+                    num += num_temp
+
+            except Exception:
+                continue
+    if num > 0:
+        avg = round(sum(by_armor.values()) / num, 2)
+    else:
+        avg = 0.0
+    if num > 0:
+        most_hit = max(by_armor, key=by_armor.get)
+    else:
+        most_hit = None
+    return {"total": sum(by_armor.values()), "by_armor": by_armor, "most_hit": most_hit, "avg": avg}
 
 
 # ---------------------------------------------------------------------------
