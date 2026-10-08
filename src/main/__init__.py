@@ -36,42 +36,35 @@ class Facing(Enum):
 # ---------------------------------------------------------------------------
 def hp_ratio(hp, max_hp):
     """TODO(Q1)：血量百分比，返回 0-100 的 int；计算与边界规则见题面 Q1 规范。"""
-    return int(hp / max_hp * 100)    ##返回血量百分比
+    if max_hp <= 0:
+        return 0
+    if hp > max_hp:
+        return 100
+    if hp < 0:
+        return 0
+    return round(hp / max_hp * 100)  # 返回血量百分比
 
 
 def status_report(name, robot_type, hp, max_hp, battery):
     """TODO(Q1)：一行自检报告字符串；档位判定与逐字符格式见题面 Q1 规范。"""
-    ratio = hp_ratio(hp, max_hp)
+    ratio = battery
     if ratio >= 70:
         status = "OK"
     elif ratio >= 30:
-        status = "WARN"
+        status = "WARNING"
     else:
-        status = "CRIT"                            ###报告为单行字符串，各字段以竖线分隔，格式模板如下——名称左对齐占 10 字符，机型居中占
-                                                   ###10 字符，两个百分比各右对齐占 3 字符，档位接在末尾
-    return f"{name}  | {robot_type} | HP:{ratio}%| BAT:{battery}%|STATUS:{status}"       
+        status = "LOW"
+    hp_percentage = hp_ratio(hp, max_hp)  # 血量百分比
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+    # 按格式输出参数
+    return f"{name:<10}|{robot_type:^10}|HP {hp_percentage:>3}%|BAT {battery:>3}%|{status}"
 
 
 # ---------------------------------------------------------------------------
 # Q2 战斗日志分析（题面 Q2·多源日志解析与统计）
 # ---------------------------------------------------------------------------
+
+
 def analyze_damage_log(lines):
     """TODO(Q2)：解析混合格式伤害日志，返回固定契约的统计 dict；
     行格式、去重与统计口径见题面 Q2 规范。"""
